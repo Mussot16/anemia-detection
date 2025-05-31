@@ -1,0 +1,19 @@
+# Ignore virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore media and database (optional)
+media/
+db.sqlite3
+
+# Ignore Jupyter and temp files
+*.ipynb_checkpoints
+*.zip
+*.tar.gz
