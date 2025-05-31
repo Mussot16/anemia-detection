@@ -17,3 +17,4 @@ db.sqlite3
 *.ipynb_checkpoints
 *.zip
 *.tar.gz
+.env

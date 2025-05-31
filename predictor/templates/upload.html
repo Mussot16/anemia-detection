@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -40,12 +41,14 @@
       max-width: 550px;
       width: 100%;
       overflow: hidden;
+      position: relative;
     }
     .card-header {
       padding: 30px;
       text-align: center;
       background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
       color: white;
+      position: relative;
     }
     .card-header h1 {
       display: flex;
@@ -55,6 +58,128 @@
       font-weight: 600;
       font-size: 1.8rem;
     }
+    /* Help Button */
+    .help-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+    .help-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: scale(1.1);
+    }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: -2;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: scale(0.8);
+      animation: modalPop 0.3s ease forwards;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+    }
+    .modal-title {
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: var(--gray);
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .close-btn:hover {
+      background: var(--light);
+      color: var(--danger);
+      transform: scale(1.1);
+    }
+    .gif-container {
+    margin: 20px auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    }
+    .modal-gif {
+      width: 100%;
+      max-width: 650px;
+      height: auto;
+      display: block;
+    }
+    .modal-description {
+      color: var(--dark);
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 1rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalPop {
+      from { 
+        transform: scale(0.8); 
+        opacity: 0;
+      }
+      to { 
+        transform: scale(1); 
+        opacity: 1;
+      }
+    }
+    /* Rest of your existing styles */
     .card-body {
       padding: 30px;
     }
@@ -288,6 +413,13 @@
       .action-buttons {
         grid-template-columns: 1fr;
       }
+      .modal-content {
+        margin: 20px;
+        padding: 20px;
+      }
+      .modal-gif {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -295,6 +427,10 @@
   <div class="upload-card">
     <div class="card-header">
       <h1><i class="fas fa-tint"></i> Detección de Anemia</h1>
+      <!-- Help Button -->
+      <button class="help-btn" id="help-btn" title="Ver tutorial">
+        <i class="fas fa-question"></i>
+      </button>
     </div>
     <div class="card-body">
       <div class="upload-section">
@@ -385,8 +521,66 @@
     </div>
   </div>
 
+  <!-- Modal for GIF Tutorial -->
+  <div id="tutorial-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-play-circle"></i>
+          Tutorial de Uso
+        </h2>
+        <button class="close-btn" id="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="gif-container">
+        <!-- Replace 'your-gif-name.gif' with your actual GIF filename -->
+        <img src="{% static 'tutorial.gif' %}" alt="Tutorial GIF" class="modal-gif" id="tutorial-gif">
+      </div>
+      <div class="modal-description">
+        <p><strong>Cómo usar la herramienta:</strong></p>
+        <p>Este tutorial te muestra paso a paso cómo subir una imagen de conjuntiva, marcar los puntos de recorte y procesar la imagen para la detección de anemia.</p>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
   <script>
+    // Modal functionality
+    const helpBtn = document.getElementById('help-btn');
+    const modal = document.getElementById('tutorial-modal');
+    const closeBtn = document.getElementById('close-modal');
+    const tutorialGif = document.getElementById('tutorial-gif');
+
+    // Open modal
+    helpBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+      // Restart GIF by resetting src
+      const gifSrc = tutorialGif.src;
+      tutorialGif.src = '';
+      tutorialGif.src = gifSrc;
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    // Your existing JavaScript code continues here...
     const fileInput = document.getElementById('file-input');
     const canvasEl = document.getElementById('crop-canvas');
     const zoomInBtn = document.getElementById('zoom-in');
